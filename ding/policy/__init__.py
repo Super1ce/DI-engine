@@ -50,3 +50,5 @@ from .pc import ProcedureCloningBFSPolicy
 
 # new-type policy
 from .ppof import PPOFPolicy
+
+from .icq import ICQPolicy

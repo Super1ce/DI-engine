@@ -6,7 +6,7 @@ import torch
 import numpy as np
 from ditk import logging
 from copy import deepcopy
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, IterableDataset
 from dataclasses import dataclass
 
 from easydict import EasyDict
@@ -520,6 +520,29 @@ class BCODataset(Dataset):
     @property
     def action(self):
         return self._data['action']
+    
+@DATASET_REGISTRY.register('icq')
+class ICQDataset(IterableDataset):
+    def __init__(self, cfg: dict) -> None:
+        data_path = cfg.policy.collect.data_path
+        try:
+            import h5py
+        except ImportError:
+            logging.warning("not found h5py package, please install it trough 'pip install h5py' ")
+        f = h5py.File(data_path,'r')
+        self.dataset = {}
+        for k,_ in f.items():
+            self.dataset[k] = f[k][:]
+        self.data_szie = self.dataset['actions'].shape[0]
+        
+            
+    def __iter__(self):
+        while True:
+            index = torch.randint(self.data_szie, size=(1,))
+            batch = dict()
+            for key in self.dataset.keys():
+                batch[key] = self.dataset[key][index]
+            yield batch
 
 
 def hdf5_save(exp_data, expert_data_path):

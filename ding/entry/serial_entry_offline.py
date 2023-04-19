@@ -49,6 +49,8 @@ def serial_pipeline_offline(
     sampler, shuffle = None, True
     if get_world_size() > 1:
         sampler, shuffle = DistributedSampler(dataset), False
+    if cfg.policy.collect.data_type == 'icq':
+        shuffle = False
     dataloader = DataLoader(
         dataset,
         # Dividing by get_world_size() here simply to make multigpu
