@@ -520,25 +520,26 @@ class BCODataset(Dataset):
     @property
     def action(self):
         return self._data['action']
-    
+
+
 @DATASET_REGISTRY.register('icq')
 class ICQDataset(IterableDataset):
+
     def __init__(self, cfg: dict) -> None:
         data_path = cfg.policy.collect.data_path
         try:
             import h5py
         except ImportError:
             logging.warning("not found h5py package, please install it trough 'pip install h5py' ")
-        f = h5py.File(data_path,'r')
+        f = h5py.File(data_path, 'r')
         self.dataset = {}
-        for k,_ in f.items():
+        for k, _ in f.items():
             self.dataset[k] = torch.from_numpy(f[k][:])
         self.data_szie = self.dataset['actions'].shape[0]
-        
-            
+
     def __iter__(self):
         while True:
-            index = torch.randint(self.data_szie, size=(1,))
+            index = torch.randint(self.data_szie, size=(1, ))
             batch = dict()
             for key in self.dataset.keys():
                 batch[key] = self.dataset[key][index]

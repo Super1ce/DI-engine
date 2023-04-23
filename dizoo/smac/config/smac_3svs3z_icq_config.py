@@ -26,7 +26,7 @@ main_config = dict(
         model=dict(
             agent_num=agent_num,
             obs_shape=36,
-            action_shape=9, # action_one_hot size
+            action_shape=9,  # action_one_hot size
             actor_hidden_size_list=[64],
             global_obs_shape=27,
             embedding_size=32,
@@ -43,10 +43,7 @@ main_config = dict(
             batch_size=32,
         ),
         # used in state_num of hidden_state
-        collect=dict(
-            data_type='icq',
-            data_path='/mnt/nfs/zhaochen/ICQ/ICQ-MA/3s_vs_3z.h5'
-        ),
+        collect=dict(data_type='icq', data_path='/mnt/nfs/zhaochen/ICQ/ICQ-MA/3s_vs_3z.h5'),
         eval=dict(env_num=evaluator_env_num, evaluator=dict(eval_freq=10000, )),
     ),
 )

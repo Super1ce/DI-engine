@@ -422,6 +422,7 @@ class BCCommandModePolicy(BehaviourCloningPolicy, DummyCommandModePolicy):
     def _get_setting_eval(self, command_info: dict) -> dict:
         return {}
 
+
 @POLICY_REGISTRY.register('icq_command')
 class ICQCommandModePolicy(ICQPolicy, DummyCommandModePolicy):
     pass

@@ -265,7 +265,8 @@ class ICQPolicy(Policy):
 
         q_value = self._learn_model.forward(inputs, mode='compute_critic')['q_value'].detach()
         q_taken = torch.gather(q_value, -1, index=actions).squeeze(-1).view(batch_size, -1, self._cfg.model.agent_num)
-        baseline = (torch.softmax(logits, dim=-1) * q_value).sum(-1).view(batch_size, -1, self._cfg.model.agent_num).detach()
+        baseline = (torch.softmax(logits, dim=-1) * q_value).sum(-1).view(batch_size, -1,
+                                                                          self._cfg.model.agent_num).detach()
         adv = (q_taken - baseline)
         beta = 0.1
         adv = F.softmax(adv / beta, dim=0).detach()
@@ -287,7 +288,11 @@ class ICQPolicy(Policy):
 
     def _monitor_vars_learn(self) -> List[str]:
         return [
-            'total_q', 'target_total_q', 'grad_norm', 'critic_loss', 'policy_loss',
+            'total_q',
+            'target_total_q',
+            'grad_norm',
+            'critic_loss',
+            'policy_loss',
         ]
 
     def _state_dict_learn(self) -> Dict[str, Any]:

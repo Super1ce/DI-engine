@@ -42,10 +42,7 @@ class ICQActorNetwork(nn.Module):
         logit = logit.reshape(T, B, A, -1)
         if unsqueeze_flag:
             logit = logit.squeeze(0)
-        return {
-            'logit': logit.transpose(0, 1),
-            'action_mask': inputs['avail_actions']
-        }
+        return {'logit': logit.transpose(0, 1), 'action_mask': inputs['avail_actions']}
 
 
 @MODEL_REGISTRY.register('icq')

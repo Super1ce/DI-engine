@@ -57,19 +57,19 @@ def serial_pipeline_offline(
         )
     else:
         dataloader = DataLoader(
-        dataset,
-        # Dividing by get_world_size() here simply to make multigpu
-        # settings mathmatically equivalent to the singlegpu setting.
-        # If the training efficiency is the bottleneck, feel free to
-        # use the original batch size per gpu and increase learning rate
-        # correspondingly.
-        cfg.policy.learn.batch_size // get_world_size(),
-        # cfg.policy.learn.batch_size
-        shuffle=shuffle,
-        sampler=sampler,
-        collate_fn=lambda x: x,
-        pin_memory=cfg.policy.cuda,
-    )
+            dataset,
+            # Dividing by get_world_size() here simply to make multigpu
+            # settings mathmatically equivalent to the singlegpu setting.
+            # If the training efficiency is the bottleneck, feel free to
+            # use the original batch size per gpu and increase learning rate
+            # correspondingly.
+            cfg.policy.learn.batch_size // get_world_size(),
+            # cfg.policy.learn.batch_size
+            shuffle=shuffle,
+            sampler=sampler,
+            collate_fn=lambda x: x,
+            pin_memory=cfg.policy.cuda,
+        )
     # Env, Policy
     try:
         if cfg.env.norm_obs.use_norm and cfg.env.norm_obs.offline_stats.use_offline_stats:
