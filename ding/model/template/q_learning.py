@@ -930,7 +930,10 @@ class DRQN(nn.Module):
                 if saved_state_timesteps is not None and t + 1 in saved_state_timesteps:
                     saved_state.append(prev_state)
                 lstm_embedding.append(output)
-                hidden_state = [p['h'] for p in prev_state]
+                if torch.is_tensor(prev_state):
+                    hidden_state = [prev_state]
+                else:
+                    hidden_state = [p['h'] for p in prev_state]
                 # only keep ht, {list: x.shape[0]{Tensor:(1, batch_size, head_hidden_size)}}
                 hidden_state_list.append(torch.cat(hidden_state, dim=1))
             x = torch.cat(lstm_embedding, 0)  # (T, B, head_hidden_size)

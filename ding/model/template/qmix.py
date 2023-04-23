@@ -47,6 +47,16 @@ class Mixer(nn.Module):
         # V(s) instead of a bias for the last layers
         self.V = nn.Sequential(nn.Linear(self.state_dim, self.embed_dim), self.act, nn.Linear(self.embed_dim, 1))
 
+    def k(self, states):
+        bs = states.size(0)
+        w1 = torch.abs(self.hyper_w_1(states))
+        w_final = torch.abs(self.hyper_w_final(states))
+        w1 = w1.view(-1, self.n_agents, self.embed_dim)
+        w_final = w_final.view(-1, self.embed_dim, 1)
+        k = torch.bmm(w1,w_final).view(bs, -1, self.n_agents)
+        k = k / torch.sum(k, dim=2, keepdim=True)
+        return k
+
     def forward(self, agent_qs, states):
         """
         Overview:

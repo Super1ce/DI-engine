@@ -230,7 +230,7 @@ class ICQPolicy(Policy):
             total_q.append(q_vals)
             q_error = (q_vals - target_q[:, t:t + 1]) * mask_t
             critic_loss = (q_error ** 2).sum() / mask_t.sum()
-            crit_loss.append(critic_loss)
+            crit_loss.append(critic_loss.unsqueeze(0))
             # ====================
             # ICQ_critic update
             # ====================
@@ -240,7 +240,9 @@ class ICQPolicy(Policy):
             grad_norm = torch.nn.utils.clip_grad_norm_(self._c_param, self._cfg.learn.clip_value)
             self._optimizer_critic.step()
             self._optimizer_mixer.step()
-        loss_dict['critic_loss'] = crit_loss
+        total_q = torch.cat(total_q, dim=1)
+        critic_loss = torch.cat(crit_loss, dim=0)
+        loss_dict['critic_loss'] = critic_loss.mean().item()
         # ====================
         # ICQ_actor update
         #=====================
@@ -251,18 +253,18 @@ class ICQPolicy(Policy):
 
         inputs['avail_actions'] = avail_actions
         inputs['obs'] = data['obs'][:, :-1]
+        inputs['state'] = data['state'][:, :-1]
+        inputs['actions'] = data['actions'][:, :-1]
 
         self._learn_model.actor.init_state()
         logits = self._learn_model.forward(inputs, mode='compute_actor')['logit']  # [B,T,A,N]
         logits[avail_actions == 0.0] = 0
-        print('logits:',logits.shape)
-        print('actions:',actions.shape)
 
         dist = torch.distributions.categorical.Categorical(logits=logits)
-        log_p = dist.log_prob(actions).view(batch_size, -1, self._cfg.model.agent_num)
+        log_p = dist.log_prob(actions.squeeze(-1)).view(batch_size, -1, self._cfg.model.agent_num)
 
-        q_value = self._learn_model.forward(inputs, mode='compute_critic')['q_value'].detach()[:, :-1]
-        q_taken = torch.gather(q_value, -1, index=actions.unsqueeze(-1)).squeeze(-1).view(batch_size, -1, self._cfg.model.agent_num)
+        q_value = self._learn_model.forward(inputs, mode='compute_critic')['q_value'].detach()
+        q_taken = torch.gather(q_value, -1, index=actions).squeeze(-1).view(batch_size, -1, self._cfg.model.agent_num)
         baseline = (torch.softmax(logits, dim=-1) * q_value).sum(-1).view(batch_size, -1, self._cfg.model.agent_num).detach()
         adv = (q_taken - baseline)
         beta = 0.1
