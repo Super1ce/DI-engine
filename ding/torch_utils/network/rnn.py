@@ -96,6 +96,9 @@ class LSTMForwardWrapper(object):
             prev_state = [torch.cat(t, dim=1) for t in state]
         elif isinstance(prev_state, dict):
             prev_state = list(prev_state.values())
+        elif torch.is_tensor(prev_state):
+            if len(prev_state.shape) == 2:
+                prev_state = prev_state.repeat(1, batch_size, 1).to(inputs.device)
         else:
             raise TypeError("not support prev_state type: {}".format(type(prev_state)))
         return prev_state
@@ -293,13 +296,13 @@ class GRU(nn.GRUCell, LSTMForwardWrapper):
             - next_state (:obj:`tensor` or :obj:`list`): hidden state from GRU
         """
         # for compatibility
-        prev_state, _ = self._before_forward(inputs, prev_state)
+        prev_state = self._before_forward(inputs, prev_state)
         inputs, prev_state = inputs.squeeze(0), prev_state.squeeze(0)
         next_state = nn.GRUCell.forward(self, inputs, prev_state)
         next_state = next_state.unsqueeze(0)
         x = next_state
         # for compatibility
-        next_state = self._after_forward([next_state, next_state.clone()], list_next_state)
+        # next_state = self._after_forward([next_state, next_state.clone()], list_next_state)
         return x, next_state
 
 

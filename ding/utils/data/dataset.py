@@ -532,7 +532,7 @@ class ICQDataset(IterableDataset):
         f = h5py.File(data_path,'r')
         self.dataset = {}
         for k,_ in f.items():
-            self.dataset[k] = f[k][:]
+            self.dataset[k] = torch.from_numpy(f[k][:])
         self.data_szie = self.dataset['actions'].shape[0]
         
             

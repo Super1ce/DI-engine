@@ -50,8 +50,13 @@ def serial_pipeline_offline(
     if get_world_size() > 1:
         sampler, shuffle = DistributedSampler(dataset), False
     if cfg.policy.collect.data_type == 'icq':
-        shuffle = False
-    dataloader = DataLoader(
+        dataloader = DataLoader(
+            dataset,
+            cfg.policy.learn.batch_size // get_world_size(),
+            pin_memory=cfg.policy.cuda,
+        )
+    else:
+        dataloader = DataLoader(
         dataset,
         # Dividing by get_world_size() here simply to make multigpu
         # settings mathmatically equivalent to the singlegpu setting.
@@ -97,12 +102,17 @@ def serial_pipeline_offline(
     # Learner's before_run hook.
     learner.call_hook('before_run')
     stop = False
-
     for epoch in range(cfg.policy.learn.train_epoch):
         if get_world_size() > 1:
             dataloader.sampler.set_epoch(epoch)
-        for train_data in dataloader:
-            learner.train(train_data)
+        if cfg.policy.collect.data_type == 'icq':
+            loader = iter(dataloader)
+            for _ in range(1000):
+                train_data = next(loader)
+                learner.train(train_data)
+        else:
+            for train_data in dataloader:
+                learner.train(train_data)
 
         # Evaluate policy at most once per epoch.
         if evaluator.should_eval(learner.train_iter):
