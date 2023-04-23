@@ -53,7 +53,7 @@ class ICQ(nn.Module):
     Interface:
         __init__, forward, _setup_global_encoder
     """
-    mode = ['compute_actor', 'compute_critic']
+    mode = ['compute_actor', 'compute_critic', 'compute_eval']
 
     def __init__(
             self,
@@ -102,10 +102,16 @@ class ICQ(nn.Module):
                 - compute_actor: ``logit``, ``next_state``, ``action_mask``
         """
         assert mode in self.mode, "not support forward mode: {}/{}".format(mode, self.mode)
-        x = {}
-        for key in inputs.keys():
-            if not isinstance(inputs[key], list):
-                x[key] = inputs[key].transpose(0, 1)
+        if mode != 'compute_eval':
+            x = {}
+            for key in inputs.keys():
+                if torch.is_tensor(inputs[key]):
+                    x[key] = inputs[key].transpose(0, 1)
+        else:
+            for key in inputs.keys():
+                if torch.is_tensor(inputs[key]):
+                    print(key,' shape:',inputs[key].shape)
+            x = inputs
         if mode == 'compute_actor':
             return self.actor(x)
         elif mode == 'compute_critic':
@@ -120,3 +126,5 @@ class ICQ(nn.Module):
             q_taken = torch.gather(q_values, dim=-1, index=x['actions']).squeeze(3)
             total_q = self.mixer(q_taken, global_state_embedding)
             return {'total_q': total_q.transpose(0, 1).unsqueeze(-1), 'q_value': q_values.transpose(0, 1)}
+        elif mode == 'compute_eval':
+            return self.actor(x)

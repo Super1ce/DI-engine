@@ -336,7 +336,7 @@ class ICQPolicy(Policy):
         data = {'obs': data}
         self._eval_model.eval()
         with torch.no_grad():
-            output = self._eval_model.forward(data, data_id=data_id, mode='compute_actor')
+            output = self._eval_model.forward(data, data_id=data_id, mode='compute_eval')
         if self._cuda:
             output = to_device(output, 'cpu')
         output = default_decollate(output)
