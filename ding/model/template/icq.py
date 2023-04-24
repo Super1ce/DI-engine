@@ -108,10 +108,7 @@ class ICQ(nn.Module):
                 if torch.is_tensor(inputs[key]):
                     x[key] = inputs[key].transpose(0, 1)
         else:
-            for key in inputs.keys():
-                if torch.is_tensor(inputs[key]):
-                    print(key,' shape:',inputs[key].shape)
-            x = inputs
+            x['obs'] = inputs['obs']['agent_state']
         if mode == 'compute_actor':
             return self.actor(x)
         elif mode == 'compute_critic':
