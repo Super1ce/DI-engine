@@ -331,12 +331,9 @@ class ICQPolicy(Policy):
         """
         data_id = list(data.keys())
         data = default_collate(list(data.values()))
-        print('eval_data:',type(data))
         if self._cuda:
             data = to_device(data, self._device)
         data = {'obs': data}
-        for key in data.keys():
-            print('eval ',key,' type:',type(data[key]))
         self._eval_model.eval()
         with torch.no_grad():
             output = self._eval_model.forward(data, data_id=data_id, mode='compute_eval')
