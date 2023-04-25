@@ -129,6 +129,7 @@ class ICQ(nn.Module):
         else:
             x = {}
             x['obs'] = inputs['obs']['agent_state']
+            print('obs.shape:',x['obs'].shape)
             x['avail_actions'] = inputs['obs']['action_mask']
         if mode == 'compute_actor':
             return self.actor(x)

@@ -2,7 +2,6 @@ from easydict import EasyDict
 
 agent_num = 3
 evaluator_env_num = 8
-special_global_state = True
 
 main_config = dict(
     exp_name='smac_3svs_3zcoma_seed0',
@@ -16,7 +15,6 @@ main_config = dict(
         stop_value=0.99,
         n_evaluator_episode=16,
         death_mask=True,
-        special_global_state=special_global_state,
         manager=dict(
             shared_memory=False,
             reset_timeout=6000,
