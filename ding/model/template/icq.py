@@ -11,13 +11,26 @@ from ding.model.template.coma import COMACriticNetwork
 
 
 class ICQActorNetwork(nn.Module):
-
+    """
+    Overview:
+        Decentralized actor network in ICQ.
+    Interface:
+        __init__, forward, init_state
+    """
     def __init__(
         self,
         obs_shape: int,
         action_shape: int,
         hidden_size_list: SequenceType = [128, 128, 64],
     ):
+        """
+        Overview:
+            initialize ICQ actor network
+        Arguments:
+            - obs_shape (:obj:`int`): the dimension of each agent's observation state
+            - action_shape (:obj:`int`): the dimension of action shape
+            - hidden_size_list (:obj:`list`): the list of hidden size, default to [128, 128, 64]
+        """
         super(ICQActorNetwork, self).__init__()
         self.main = DRQN(obs_shape, action_shape, hidden_size_list, lstm_type='gru')
         self.rnn_hidden_size = hidden_size_list[-1]
@@ -26,6 +39,12 @@ class ICQActorNetwork(nn.Module):
         self.hidden_state = torch.zeros(1, self.rnn_hidden_size)
 
     def forward(self, inputs: Dict) -> Dict:
+        """
+        ArgumentsKeys:
+            - necessary: ``obs``, ``avail_actions``, 
+        ReturnsKeys:
+            - necessary: ``logit``, ``action_mask``
+        """
         agent_state = inputs['obs']
         if len(agent_state.shape) == 3:  # B, A, N
             agent_state = agent_state.unsqueeze(0)
@@ -108,7 +127,9 @@ class ICQ(nn.Module):
                 if torch.is_tensor(inputs[key]):
                     x[key] = inputs[key].transpose(0, 1)
         else:
+            x = {}
             x['obs'] = inputs['obs']['agent_state']
+            x['avail_actions'] = inputs['obs']['action_mask']
         if mode == 'compute_actor':
             return self.actor(x)
         elif mode == 'compute_critic':
