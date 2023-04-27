@@ -56,12 +56,12 @@ class ICQActorNetwork(nn.Module):
         prev_state = self.hidden_state
         output = self.main({'obs': agent_state, 'prev_state': prev_state, 'enable_fast_timestep': True})
         logit, next_state = output['logit'], output['next_state']
-        next_state, _ = list_split(next_state, step=A)
         self.hidden_state = next_state
         logit = logit.reshape(T, B, A, -1)
         if unsqueeze_flag:
             logit = logit.squeeze(0)
-        return {'logit': logit.transpose(0, 1), 'action_mask': inputs['avail_actions']}
+        logit = logit.transpose(0, 1) if len(logit.shape) == 4 else logit
+        return {'logit': logit, 'action_mask': inputs['avail_actions']}
 
 
 @MODEL_REGISTRY.register('icq')
@@ -129,7 +129,6 @@ class ICQ(nn.Module):
         else:
             x = {}
             x['obs'] = inputs['obs']['agent_state']
-            print('obs.shape:',x['obs'].shape)
             x['avail_actions'] = inputs['obs']['action_mask']
         if mode == 'compute_actor':
             return self.actor(x)

@@ -153,9 +153,9 @@ class SMACEnv(SC2Env, BaseEnv):
         self.obs_own_health = True
         self.obs_all_health = True
         self.obs_instead_of_state = False
-        self.obs_last_action = True
+        self.obs_last_action = cfg.obs_last_action if 'obs_last_action' in cfg else True
         self.obs_terrain_height = False
-        self.obs_timestep_number = False
+        self.obs_timestep_number = cfg.obs_timestep_number if 'obs_timestep_number' in cfg else False
         self.state_last_action = True
         self.state_timestep_number = False
         if self.obs_all_health:
@@ -1045,7 +1045,6 @@ class SMACEnv(SC2Env, BaseEnv):
                     enemy_feats.flatten(),
                     ally_feats.flatten(),
                     own_feats.flatten(),
-                    agent_id_feats,
                 )
             )
             if self.obs_timestep_number:
@@ -1082,7 +1081,6 @@ class SMACEnv(SC2Env, BaseEnv):
                 enemy_feats=enemy_feats,
                 ally_feats=ally_feats,
                 own_feats=own_feats,
-                agent_id_feats=agent_id_feats
             )
             if self.obs_timestep_number:
                 agent_obs["obs_timestep_number"] = self._episode_steps / self.episode_limit
@@ -1131,7 +1129,6 @@ class SMACEnv(SC2Env, BaseEnv):
             own_feats += 1
         if self.obs_last_action:
             own_feats += self.n_actions
-
         return own_feats
 
     def get_obs_move_feats_size(self):

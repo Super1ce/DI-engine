@@ -11,6 +11,7 @@ main_config = dict(
         reward_only_positive=True,
         mirror_opponent=False,
         agent_num=agent_num,
+        obs_last_action=False,
         evaluator_env_num=evaluator_env_num,
         stop_value=0.99,
         n_evaluator_episode=16,
@@ -42,7 +43,7 @@ main_config = dict(
         ),
         # used in state_num of hidden_state
         collect=dict(data_type='icq', data_path='/mnt/nfs/zhaochen/ICQ/ICQ-MA/3s_vs_3z.h5'),
-        eval=dict(env_num=evaluator_env_num, evaluator=dict(eval_freq=10000, )),
+        eval=dict(env_num=evaluator_env_num, evaluator=dict(eval_freq=10, )),
     ),
 )
 main_config = EasyDict(main_config)
