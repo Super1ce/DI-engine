@@ -43,7 +43,7 @@ main_config = dict(
         ),
         # used in state_num of hidden_state
         collect=dict(data_type='icq', data_path='/mnt/nfs/zhaochen/ICQ/ICQ-MA/3s_vs_3z.h5'),
-        eval=dict(env_num=evaluator_env_num, evaluator=dict(eval_freq=10, )),
+        eval=dict(env_num=evaluator_env_num, evaluator=dict(eval_freq=10000, )),
     ),
 )
 main_config = EasyDict(main_config)
