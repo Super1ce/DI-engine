@@ -35,8 +35,13 @@ class ICQActorNetwork(nn.Module):
         self.main = DRQN(obs_shape, action_shape, hidden_size_list, lstm_type='gru')
         self.rnn_hidden_size = hidden_size_list[-1]
 
-    def init_state(self):
-        self.hidden_state = torch.zeros(1, self.rnn_hidden_size)
+    def init_state(self, id: int = None):
+        if id is None:
+            self.hidden_state = torch.zeros(1, self.rnn_hidden_size)
+        else:
+            print('id:',id)
+            print('hidden_state.shape:',self.hidden_state.shape)
+            self.hidden_state[:, id * 3: (id + 1) * 3] = 0
 
     def forward(self, inputs: Dict) -> Dict:
         """
@@ -54,8 +59,10 @@ class ICQActorNetwork(nn.Module):
         T, B, A = agent_state.shape[:3]
         agent_state = agent_state.reshape(T, -1, *agent_state.shape[3:])
         prev_state = self.hidden_state
+        print('obs:',agent_state.shape)
         output = self.main({'obs': agent_state, 'prev_state': prev_state, 'enable_fast_timestep': True})
         logit, next_state = output['logit'], output['next_state']
+        print('next_state.shape:',next_state.shape)
         self.hidden_state = next_state
         logit = logit.reshape(T, B, A, -1)
         if unsqueeze_flag:

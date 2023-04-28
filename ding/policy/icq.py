@@ -355,5 +355,5 @@ class ICQPolicy(Policy):
         pass
 
     def _reset_eval(self, data_id: Optional[List[int]] = None) -> None:
-        super()._reset_eval(data_id)
-        self._eval_model.actor.init_state()
+        self._eval_model.actor.init_state(data_id)
+        self._eval_model.reset(data_id=data_id)
