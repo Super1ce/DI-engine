@@ -51,6 +51,7 @@ from .bdq import BDQPolicy
 from .bcq import BCQPolicy
 from .edac import EDACPolicy
 from .plan_diffuser import PDPolicy
+from .decision_diffuser import DDPolicy
 
 
 class EpsCommandModePolicy(CommandModePolicy):
@@ -403,6 +404,9 @@ class EDACCommandModelPolicy(EDACPolicy, DummyCommandModePolicy):
 class PDCommandModelPolicy(PDPolicy, DummyCommandModePolicy):
     pass
 
+@POLICY_REGISTRY.register('dd_command')
+class DDCommandModelPolicy(DDPolicy, DummyCommandModePolicy):
+    pass
 
 @POLICY_REGISTRY.register('bc_command')
 class BCCommandModePolicy(BehaviourCloningPolicy, DummyCommandModePolicy):
